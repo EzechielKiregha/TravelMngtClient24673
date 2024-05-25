@@ -1,6 +1,8 @@
 package com.mirrorcompany.component;
 
-import com.mirrorcompany.pages.Dash;
+
+import com.mirrorcompany.view.OverviewFrame;
+import com.mirrorcompany.view.form.dash.Home;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -35,8 +37,6 @@ public class LogOutPopUp extends javax.swing.JPanel {
     public void quitTheApp(ActionListener quit){
         QuitTheApp.addActionListener(quit);
     }
-    
-
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -109,7 +109,8 @@ public class LogOutPopUp extends javax.swing.JPanel {
 
     private void LogMeInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogMeInActionPerformed
         setVisible(false);
-        Dash.goToHome();
+        Home dash = new Home();
+        OverviewFrame.toDash();
     }//GEN-LAST:event_LogMeInActionPerformed
     
     @Override

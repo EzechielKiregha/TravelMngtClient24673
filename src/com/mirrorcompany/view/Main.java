@@ -10,8 +10,6 @@ import com.mirrorcompany.dao.ServiceMailDao;
 import com.mirrorcompany.dao.UserDao;
 import com.mirrorcompany.model.MessageModel;
 import com.mirrorcompany.model.UserModel;
-import com.mirrorcompany.pages.Dash;
-import com.mirrorcompany.pages.AdministrationPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -269,11 +267,6 @@ public class Main extends javax.swing.JFrame {
                     if (role.toLowerCase().equals("admin")){
                         adminDashBoard = new AdministrationPanel(email, role, status);
                         adminDashBoard.setVisible(true);
-                        loading.setVisible(false);
-                        dispose();
-                    }else{
-                        userDashBoard = new Dash(userid);
-                        userDashBoard.setVisible(true);
                         loading.setVisible(false);
                         dispose();
                     }

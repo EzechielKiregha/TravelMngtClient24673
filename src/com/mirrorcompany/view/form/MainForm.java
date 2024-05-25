@@ -48,11 +48,11 @@ public class MainForm extends javax.swing.JPanel {
 
     public void initMoving(JFrame fram) {
         header1.initMoving(fram);
-        show(new Form_1());
+        showComp(new Form_1());
     }
 
     
-    public void show(Component com){
+    public void showComp(Component com){
         body.removeAll();
         body.add(com);
         body.repaint();

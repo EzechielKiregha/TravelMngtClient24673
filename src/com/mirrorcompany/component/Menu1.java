@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Path2D;
 import javax.swing.JFrame;
 
 /**
@@ -45,13 +46,18 @@ public class Menu1 extends javax.swing.JPanel {
         listMenu1.addItem(new MenuModel("7", "Logout", MenuModel.MenuType.MENU));
     }
 
+    public void setLogo(String name, String imgName, String extension){
+        nameMenu.setText(name);
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/photos/"+imgName+"."+extension)));
+    }
  
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         panelMoving = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        nameMenu = new javax.swing.JLabel();
+        logo = new com.mirrorcompany.view.swing.ImageAvatar();
         listMenu1 = new com.mirrorcompany.swing_designs.ListMenu<>();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -67,31 +73,39 @@ public class Menu1 extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/icons/LogoSmart.png"))); // NOI18N
+        nameMenu.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        nameMenu.setForeground(new java.awt.Color(204, 204, 204));
+        nameMenu.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        nameMenu.setText("TMS");
+
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/photos/TRAV.jpg"))); // NOI18N
 
         javax.swing.GroupLayout panelMovingLayout = new javax.swing.GroupLayout(panelMoving);
         panelMoving.setLayout(panelMovingLayout);
         panelMovingLayout.setHorizontalGroup(
             panelMovingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelMovingLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(panelMovingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(nameMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+                    .addComponent(logo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         panelMovingLayout.setVerticalGroup(
             panelMovingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelMovingLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addComponent(logo, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nameMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE))
         );
 
-        jLabel2.setFont(new java.awt.Font("Georgia", 1, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Ink Free", 3, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(250, 250, 250));
         jLabel2.setText("Powered by");
 
         jLabel3.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/icons/Rwanda_Energy_Group_logo.png"))); // NOI18N
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/photos/sponsor .png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -110,8 +124,8 @@ public class Menu1 extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panelMoving, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(listMenu1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addComponent(listMenu1, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -123,14 +137,22 @@ public class Menu1 extends javax.swing.JPanel {
     }//GEN-LAST:event_panelMovingAncestorAdded
 
     @Override
-    protected void paintComponent(Graphics grphcs) {
+    protected void paintChildren(Graphics grphcs) {
         Graphics2D g2 = (Graphics2D) grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        GradientPaint g = new GradientPaint(0, 0, Color.decode("#34B48D"), 0, getHeight(), Color.decode("#0B5F56"));
+        GradientPaint g = new GradientPaint(0, 0, Color.decode("#2B73E8"), 0, getHeight(), new Color(6,7,29));
+        int height = 140;
+        Path2D.Float f = new Path2D.Float();
+        f.moveTo(0, 0);
+        f.curveTo(0, 0, 0, 70, 100, 70);
+        f.curveTo(100, 70, getWidth(), 70, getWidth(), height);
+        f.lineTo(getWidth(), getHeight());
+        f.lineTo(0, getHeight());
+        g2.setColor(new Color(60, 60, 60));
+        g2.fillRect(0, 0, getWidth(), getHeight());
         g2.setPaint(g);
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-        g2.fillRect(getWidth() - 20, 0, getWidth(), getHeight());
-        super.paintComponent(grphcs); //To change body of generated methods, choose Tools | Templates.
+        g2.fill(f);
+        super.paintChildren(grphcs);
     }
 
     private int x;
@@ -154,10 +176,11 @@ public class Menu1 extends javax.swing.JPanel {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private com.mirrorcompany.swing_designs.ListMenu<String> listMenu1;
+    public com.mirrorcompany.swing_designs.ListMenu<String> listMenu1;
+    private com.mirrorcompany.view.swing.ImageAvatar logo;
+    private javax.swing.JLabel nameMenu;
     private javax.swing.JPanel panelMoving;
     // End of variables declaration//GEN-END:variables
 }

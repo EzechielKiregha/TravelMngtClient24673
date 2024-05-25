@@ -95,7 +95,6 @@ public class ListMenu<E extends Object> extends JList<E> {
                 item.setOver(overIndex == index);
                 return item;
             }
-
         };
     }
 

@@ -45,7 +45,7 @@ public class MenuModel {
     public MenuModel() {
     }
     public Icon toIcon() {
-        return new ImageIcon(getClass().getResource("/com/mirrorcompany/icons/" + icon + ".png"));
+        return new ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/" + icon + ".png"));
     }
 
     public static enum MenuType {

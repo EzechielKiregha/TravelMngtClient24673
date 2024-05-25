@@ -1,17 +1,25 @@
 package com.mirrorcompany.view;
 
+import com.mirrorcompany.component.LogOutPopUp;
 import com.mirrorcompany.events.EventMenuSelected;
 import com.mirrorcompany.view.comp.MenuLayout;
 import com.mirrorcompany.view.form.Form_1;
 import com.mirrorcompany.view.form.Form_2;
-import com.mirrorcompany.view.form.MainForm;
-import com.mirrorcompany.view.form.dash.Dashboard;
+import com.mirrorcompany.view.form.community.CommunityPlatform;
+import com.mirrorcompany.view.form.dash.Home;
+import com.mirrorcompany.view.form.flight.FlightBooking;
+import com.mirrorcompany.view.form.profile.PanelProfile;
+import com.mirrorcompany.view.form.profile.UserProfile;
+import com.mirrorcompany.view.form.travel.NewItineraryPopUp;
+import com.mirrorcompany.view.form.travel.TMS;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
@@ -23,200 +31,580 @@ import org.jdesktop.animation.timing.TimingTargetAdapter;
 
 public class OverviewFrame extends javax.swing.JFrame {
 
-    private final MigLayout layout;
-//    private final MainForm main;
-    private final MenuLayout menu;
-    private final Animator animator;
-    private final Dashboard main;
+    private static JLayeredPane body;
+    private static LogOutPopUp logout;
+    private static PanelProfile myProfile;
+    private static MigLayout layout;
+    private static Animator animator;
+    private static TimingTarget target;
+    private static MenuLayout menuLayout;
+    
+    private static TMS tms;
+    private static NewItineraryPopUp itinerary;
+    
+    private static Home dash;
+    private static CommunityPlatform mainC;
+    private static UserProfile mainP;
+    private static FlightBooking mainB;
     
     public OverviewFrame() {
         initComponents();
+        initializeButtons();
         
+        
+        tms = new TMS();
+        mainB = new FlightBooking();
+        mainC = new CommunityPlatform();
+        mainP = new UserProfile();
+        menuLayout = new MenuLayout();
+        dash = new Home();
+        logout = new LogOutPopUp();
+        myProfile = new PanelProfile();
+        
+        
+        // START CODE REGARDING TMS TAB
+        
+        itinerary = new NewItineraryPopUp();
+        
+        // ENS CODE REGARDING TMS TAB
+        
+        body = new JLayeredPane();
         layout = new MigLayout("fill", "0[fill]0", "0[fill]0");
-        main = new Dashboard();
-        menu = new MenuLayout();
-        menu.getMenu().initMoving(OverviewFrame.this);
-//        main.initMoving(OverviewFrame.this);
-        bodyContainer.setLayer(menu, JLayeredPane.POPUP_LAYER);
-        bodyContainer.setLayout(layout);
-        bodyContainer.add(main);
-        bodyContainer.add(menu, "pos -215 0 100% 100%", 0);
+        body.setLayer(menuLayout, JLayeredPane.POPUP_LAYER);
+        body.setLayout(layout);
+        // Set up the frame and add components
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(body, BorderLayout.EAST);
+        body.setSize(new Dimension(1050, 720));
+        body.setPreferredSize(new Dimension(1050, 720));
+
+        toDash();
+        
+        btnTravelM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (myProfile.isVisible()){
+                    myProfile.setVisible(false);
+                    removeComponentIfExists(myProfile);
+                }
+                removeComponentIfExists(dash);
+                removeComponentIfExists(mainB);
+                removeComponentIfExists(mainC);
+                removeComponentIfExists(mainP);
+                removeComponentIfExists(logout);
+                updateMenuList(menuLayout, 1); // this will trigger the menu list for travel management to display in Menu class
+                tms.initMoving(OverviewFrame.this);
+                showComponent(tms);
+            }
+        });
+
+        btnBook.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (myProfile.isVisible()){
+                    myProfile.setVisible(false);
+                    removeComponentIfExists(myProfile);
+                }
+                removeComponentIfExists(dash);
+                removeComponentIfExists(tms);
+                removeComponentIfExists(mainC);
+                removeComponentIfExists(mainP);
+                removeComponentIfExists(logout);
+                updateMenuList(menuLayout, 2); // this will trigger the menu list for booking flight to display in Menu class
+                mainB.initMoving(OverviewFrame.this);
+                showComponent(mainB);
+            }
+        });
+
+        btnCom.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (myProfile.isVisible()){
+                    myProfile.setVisible(false);
+                    removeComponentIfExists(myProfile);
+                }
+                removeComponentIfExists(dash);
+                removeComponentIfExists(tms);
+                removeComponentIfExists(mainB);
+                removeComponentIfExists(mainP);
+                removeComponentIfExists(logout);
+                updateMenuList(menuLayout, 3); // this will trigger the menu list for Community to display in Menu class
+                mainC.initMoving(OverviewFrame.this);
+                showComponent(mainC);
+            }
+        });
+
+        btnProfile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                removeComponentIfExists(dash);
+                removeComponentIfExists(tms);
+                removeComponentIfExists(mainB);
+                removeComponentIfExists(mainC);
+                removeComponentIfExists(logout);
+                updateMenuList(menuLayout, 4);
+                 // this will trigger the menu list for profile to display in Menu class
+                mainP.initMoving(OverviewFrame.this);
+                showComponent(mainP);
+                if (!myProfile.isVisible())
+                    showProfile();
+            }
+        });
+        btnlogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (myProfile.isVisible()){
+                    myProfile.setVisible(false);
+                    removeComponentIfExists(myProfile);
+                }
+                removeComponentIfExists(dash);
+                removeComponentIfExists(tms);
+                removeComponentIfExists(mainB);
+                removeComponentIfExists(mainC);
+                removeComponentIfExists(mainP);
+                showLogout();
+            }
+        });
+        logout.quitTheApp(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                System.exit(0);
+            }
+        });
+        
+        dash.newItineraryEvt(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (myProfile.isVisible()){
+                    myProfile.setVisible(false);
+                    removeComponentIfExists(myProfile);
+                }
+                removeComponentIfExists(dash);
+                removeComponentIfExists(mainB);
+                removeComponentIfExists(mainC);
+                removeComponentIfExists(mainP);
+                removeComponentIfExists(logout);
+                updateMenuList(menuLayout, 1); // this will trigger the menu list for travel management to display in Menu class
+                tms.initMoving(OverviewFrame.this);
+                showComponent(tms);
+                showNewItinerary();
+            }
+        });
+        
+        body.add(menuLayout, "pos -215 0 100% 100%", 0);
+        // Timing target to control the animation and visibility of the menu layout
         TimingTarget target = new TimingTargetAdapter() {
             @Override
             public void timingEvent(float fraction) {
-                float x = (fraction * 215);
+                float x = fraction * 215;
                 float alpha;
-                if (menu.isShow()) {
+                if (menuLayout.isShow()) {
                     x = -x;
                     alpha = 0.5f - (fraction / 2);
                 } else {
                     x -= 215;
                     alpha = fraction / 2;
                 }
-                layout.setComponentConstraints(menu, "pos " + (int) x + " 0 100% 100%");
-                if (alpha < 0) {
-                    alpha = 0;
-                }
-                menu.setAlpha(alpha);
-                bodyContainer.revalidate();
+                layout.setComponentConstraints(menuLayout, "pos " + (int) x + " 0 100% 100%");
+                menuLayout.setAlpha(alpha < 0 ? 0 : alpha);
+                body.revalidate();
             }
 
             @Override
             public void end() {
-                menu.setShow(!menu.isShow());
-                if (!menu.isShow()) {
-                    menu.setVisible(false);
+                menuLayout.setShow(!menuLayout.isShow());
+                if (!menuLayout.isShow()) {
+                    menuLayout.setVisible(false);
                 }
             }
-
         };
+        // Initialize the animator with the timing target
         animator = new Animator(200, target);
-        menu.addMouseListener(new MouseAdapter() {
+        // Add mouse listener to menuLayout to start the animator if it's not running
+        menuLayout.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
-                if (SwingUtilities.isLeftMouseButton(me)) {
-                    if (!animator.isRunning()) {
-                        if (menu.isShow()) {
-                            animator.start();
-                        }
+                if (SwingUtilities.isLeftMouseButton(me) && !animator.isRunning()) {
+                    animator.start();
+                }
+            }
+        });
+        addListeners(tms, mainB, mainC, mainP);
+    }
+
+    private static void removeComponentIfExists(Component component) {
+        if (component.getParent() != null) {
+            body.remove(component);
+        }
+    }
+    
+    private static void showComponent(Component component) {
+        body.add(component);
+        body.revalidate();
+        body.repaint();
+    }
+    
+    public static void toDash(){
+        dash = new Home();
+        if (myProfile.isVisible()){
+            myProfile.setVisible(false);
+            removeComponentIfExists(myProfile);
+        }
+        removeComponentIfExists(mainC);
+        removeComponentIfExists(tms);
+        removeComponentIfExists(mainB);
+        removeComponentIfExists(mainP);
+        removeComponentIfExists(logout);
+        btnHome.setBackground(new Color(54, 81, 207));
+        btnTravelM.setBackground(new Color(6, 7, 29));
+        btnBook.setBackground(new Color(6, 7, 29));
+        btnCom.setBackground(new Color(6, 7, 29));
+        btnProfile.setBackground(new Color(6, 7, 29));
+        btnlogout.setBackground(new Color(6, 7, 29));
+        showComponent(dash);
+    }
+    public void showLogout() {
+        if (logout != null) {
+            body.setLayout(layout);
+            logout.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
+            body.setLayer(logout, JLayeredPane.POPUP_LAYER);
+            body.add(logout, "pos 0 0 100% 100%");
+            body.repaint();
+            body.revalidate();
+            logout.setVisible(true);
+        }
+    }
+    public void showNewItinerary() {
+        if (itinerary != null) {
+            body.setLayout(layout);
+            logout.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
+            body.setLayer(itinerary, JLayeredPane.POPUP_LAYER);
+            body.add(itinerary, "pos 0 0 100% 100%");
+            body.repaint();
+            body.revalidate();
+            itinerary.setVisible(true);
+        }
+    }
+    public void showProfile(){
+        if (myProfile != null) {
+            body.setLayout(layout);
+            myProfile.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
+            body.setLayer(myProfile, JLayeredPane.POPUP_LAYER);
+            body.add(myProfile, "pos 0 0 100% 100%");
+            body.repaint();
+            body.revalidate();
+            myProfile.setVisible(true);
+        }
+    }
+    public void addListeners(TMS tms, FlightBooking bf, CommunityPlatform c, UserProfile p){
+        // Remove previous action listeners from tms
+        for (ActionListener al : tms.getBtn().getActionListeners()) {
+            tms.getBtn().removeActionListener(al);
+        }
+
+        // Add new action listener to tms
+        tms.addEventMenu(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!animator.isRunning()) {
+//                    System.out.println("Animator not running");
+                    if (!menuLayout.isShow()) {
+//                        System.out.println("Menu layout not shown");
+                        menuLayout.setVisible(true);
+                        animator.start();
+                        System.out.println("travel menu clicked...");
                     }
                 }
             }
         });
-//        main.addEventMenu(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent ae) {
-//                if (!animator.isRunning()) {
-//                    if (!menu.isShow()) {
-//                        menu.setVisible(true);
-//                        animator.start();
-//                    }
-//                }
-//            }
-//        });
-//        menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
-//            @Override
-//            public void selected(int index) {
-//                if (index == 0){
-//                    main.show(new Form_1());
-//                } else if (index == 1) {
-//                    main.show(new Form_2());
-//                }
-//            }
-//        });
-        
-        JButton [] btns = {jButton1, jButton2, jButton3, jButton4, jButton5, jButton6};
-        for (JButton btn : btns) {
-            btn.setBackground(new Color(6,7,29));
-            btn.setUI(new BasicButtonUI());
-            btn.addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(MouseEvent me) {
-               }
-
-                @Override
-                public void mousePressed(MouseEvent me) {
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent me) {
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent me) {
-                    btn.setBackground(new Color(54, 81, 207));
-                }
-
-                @Override
-                public void mouseExited(MouseEvent me) {
-                    btn.setBackground(new Color(6,7,29));
-                }
-            });
+        for (ActionListener al : bf.getBtn().getActionListeners()) {
+            bf.getBtn().removeActionListener(al);
         }
+
+        // Add new action listener to tms
+        bf.addEventMenu(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!animator.isRunning()) {
+//                    System.out.println("Animator not running");
+                    if (!menuLayout.isShow()) {
+//                        System.out.println("Menu layout not shown");
+                        menuLayout.setVisible(true);
+                        animator.start();
+                        System.out.println("booking menu clicked...");
+                    }
+                }
+            }
+        });
+        for (ActionListener al : c.getBtn().getActionListeners()) {
+            c.getBtn().removeActionListener(al);
+        }
+
+        // Add new action listener to tms
+        c.addEventMenu(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!animator.isRunning()) {
+//                    System.out.println("Animator not running");
+                    if (!menuLayout.isShow()) {
+//                        System.out.println("Menu layout not shown");
+                        menuLayout.setVisible(true);
+                        animator.start();
+                        System.out.println("community menu clicked...");
+                    }
+                }
+            }
+        });
+        for (ActionListener al : p.getBtn().getActionListeners()) {
+            p.getBtn().removeActionListener(al);
+        }
+
+        // Add new action listener to tms
+        p.addEventMenu(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!animator.isRunning()) {
+//                    System.out.println("Animator not running");
+                    if (!menuLayout.isShow()) {
+//                        System.out.println("Menu layout not shown");
+                        menuLayout.setVisible(true);
+                        animator.start();
+                        System.out.println("profile menu clicked...");
+                    }
+                }
+            }
+        });
     }
 
+    private void initializeButtons() {
+        // Initialize buttons and their properties
+        btnHome.setBackground(new Color(54, 81, 207));
+        btnHome.setUI(new BasicButtonUI());
+        JButton[] btns = {btnTravelM, btnBook, btnCom, btnProfile, btnlogout};
+        for (JButton btn : btns) {
+            btn.setBackground(new Color(6, 7, 29));
+            btn.setUI(new BasicButtonUI());
+        }
+    }
+    private void updateMenuList(MenuLayout menu, int selectedTab) {
+        switch (selectedTab) {
+            case 1: // Travel Management System (TMS)
+//                initTMSMenuItems(menu);
+                System.out.println("List Menu Refilled");
+                menu.getMenu().setLogo(1,"TRAVEL MANAGEMENT", "TRAV", "jpg");
+                menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
+                    @Override
+                    public void selected(int index) {
+                        if (index == 0){
+                            tms.show(new Form_1());
+                        } else if (index == 1) {
+                            tms.show(new Form_2());
+                        }
+                    }
+                });
+                break;
+            case 2: // Booking
+//                initBookingMenuItems(menu);
+                System.out.println("List Menu Refilled");
+                menu.getMenu().setLogo(2,"FLIGHT BOOKING", "flight", "jpg");
+                menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
+                    @Override
+                    public void selected(int index) {
+                        if (index == 0){
+                            mainB.show(new Form_1());
+                        } else if (index == 1) {
+                            mainB.show(new Form_2());
+                        }
+                    }
+                });
+                break;
+            case 3: // Community
+//                initCommunityMenuItems(menu);
+                System.out.println("List Menu Refilled");
+                menu.getMenu().setLogo(3,"TMS COMMUNITY", "community", "png");
+                menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
+                    @Override
+                    public void selected(int index) {
+                        if (index == 0){
+                            mainC.show(new Form_1());
+                        } else if (index == 1) {
+                            mainC.show(new Form_2());
+                        }
+                    }
+                });
+                break;
+            case 4: // Profile
+//                initProfileMenuItems(menu);
+                System.out.println("List Menu Refilled");
+                menu.getMenu().setLogo(4,"PROFILES", "me", "jpeg");
+                menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
+                    @Override
+                    public void selected(int index) {
+                        if (index == 0){
+                            mainP.show(new Form_1());
+                        } else if (index == 1) {
+                            mainP.show(new Form_2());
+                        }
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    }
+    
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        container = new javax.swing.JPanel();
-        mainMenu = new javax.swing.JPanel();
+        cmain = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnHome = new javax.swing.JButton();
+        btnTravelM = new javax.swing.JButton();
+        btnBook = new javax.swing.JButton();
+        btnCom = new javax.swing.JButton();
+        btnProfile = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        jButton6 = new javax.swing.JButton();
-        bodyContainer = new javax.swing.JLayeredPane();
+        btnlogout = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1120, 750));
+        setUndecorated(true);
+        setPreferredSize(new java.awt.Dimension(1130, 720));
 
-        container.setLayout(new java.awt.BorderLayout());
-
-        mainMenu.setBackground(new java.awt.Color(6, 7, 29));
-        mainMenu.setPreferredSize(new java.awt.Dimension(80, 0));
+        cmain.setBackground(new java.awt.Color(6, 7, 29));
+        cmain.setPreferredSize(new java.awt.Dimension(80, 0));
 
         jPanel1.setBackground(new java.awt.Color(6, 7, 29));
         jPanel1.setPreferredSize(new java.awt.Dimension(50, 250));
         jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 60));
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/4.png"))); // NOI18N
-        jButton1.setPreferredSize(new java.awt.Dimension(40, 40));
-        jPanel1.add(jButton1);
+        btnHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/4.png"))); // NOI18N
+        btnHome.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnHome.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnHome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHomeActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnHome);
 
-        mainMenu.add(jPanel1);
+        cmain.add(jPanel1);
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/7.png"))); // NOI18N
-        jButton2.setPreferredSize(new java.awt.Dimension(40, 40));
-        mainMenu.add(jButton2);
+        btnTravelM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/7.png"))); // NOI18N
+        btnTravelM.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnTravelM.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnTravelM.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTravelMActionPerformed(evt);
+            }
+        });
+        cmain.add(btnTravelM);
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/8.png"))); // NOI18N
-        jButton3.setPreferredSize(new java.awt.Dimension(40, 40));
-        mainMenu.add(jButton3);
+        btnBook.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/8.png"))); // NOI18N
+        btnBook.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnBook.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnBook.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBookActionPerformed(evt);
+            }
+        });
+        cmain.add(btnBook);
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/2.png"))); // NOI18N
-        jButton4.setPreferredSize(new java.awt.Dimension(40, 40));
-        mainMenu.add(jButton4);
+        btnCom.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/2.png"))); // NOI18N
+        btnCom.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCom.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnCom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnComActionPerformed(evt);
+            }
+        });
+        cmain.add(btnCom);
 
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/3.png"))); // NOI18N
-        jButton5.setPreferredSize(new java.awt.Dimension(40, 40));
-        mainMenu.add(jButton5);
+        btnProfile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/3.png"))); // NOI18N
+        btnProfile.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnProfile.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
+        cmain.add(btnProfile);
 
         jPanel2.setBackground(new java.awt.Color(6, 7, 29));
         jPanel2.setPreferredSize(new java.awt.Dimension(50, 200));
         jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 110));
 
-        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/4.png"))); // NOI18N
-        jButton6.setPreferredSize(new java.awt.Dimension(40, 40));
-        jPanel2.add(jButton6);
+        btnlogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/4.png"))); // NOI18N
+        btnlogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnlogout.setPreferredSize(new java.awt.Dimension(40, 40));
+        btnlogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnlogoutActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnlogout);
 
-        mainMenu.add(jPanel2);
+        cmain.add(jPanel2);
 
-        container.add(mainMenu, java.awt.BorderLayout.WEST);
-
-        bodyContainer.setBackground(new java.awt.Color(18, 20, 46));
-
-        javax.swing.GroupLayout bodyContainerLayout = new javax.swing.GroupLayout(bodyContainer);
-        bodyContainer.setLayout(bodyContainerLayout);
-        bodyContainerLayout.setHorizontalGroup(
-            bodyContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1040, Short.MAX_VALUE)
-        );
-        bodyContainerLayout.setVerticalGroup(
-            bodyContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 720, Short.MAX_VALUE)
-        );
-
-        container.add(bodyContainer, java.awt.BorderLayout.CENTER);
-
-        getContentPane().add(container, java.awt.BorderLayout.CENTER);
+        getContentPane().add(cmain, java.awt.BorderLayout.WEST);
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnlogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnlogoutActionPerformed
+        btnHome.setBackground(new Color(6, 7, 29));
+        btnTravelM.setBackground(new Color(6, 7, 29));
+        btnBook.setBackground(new Color(6, 7, 29));
+        btnCom.setBackground(new Color(6, 7, 29));
+        btnProfile.setBackground(new Color(6, 7, 29));
+        btnlogout.setBackground(new Color(54, 81, 207));
+    }//GEN-LAST:event_btnlogoutActionPerformed
+
+    private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
+
+        btnHome.setBackground(new Color(6, 7, 29));
+        btnTravelM.setBackground(new Color(6, 7, 29));
+        btnBook.setBackground(new Color(6, 7, 29));
+        btnCom.setBackground(new Color(6, 7, 29));
+        btnProfile.setBackground(new Color(54, 81, 207));
+        btnlogout.setBackground(new Color(6, 7, 29));
+    }//GEN-LAST:event_btnProfileActionPerformed
+
+    private void btnComActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComActionPerformed
+
+        btnHome.setBackground(new Color(6, 7, 29));
+        btnTravelM.setBackground(new Color(6, 7, 29));
+        btnBook.setBackground(new Color(6, 7, 29));
+        btnCom.setBackground(new Color(54, 81, 207));
+        btnProfile.setBackground(new Color(6, 7, 29));
+        btnlogout.setBackground(new Color(6, 7, 29));
+    }//GEN-LAST:event_btnComActionPerformed
+
+    private void btnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBookActionPerformed
+        
+        btnHome.setBackground(new Color(6, 7, 29));
+        btnTravelM.setBackground(new Color(6, 7, 29));
+        btnBook.setBackground(new Color(54, 81, 207));
+        btnCom.setBackground(new Color(6, 7, 29));
+        btnProfile.setBackground(new Color(6, 7, 29));
+        btnlogout.setBackground(new Color(6, 7, 29));
+    }//GEN-LAST:event_btnBookActionPerformed
+
+    private void btnTravelMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTravelMActionPerformed
+
+        btnHome.setBackground(new Color(6, 7, 29));
+        btnTravelM.setBackground(new Color(54, 81, 207));
+        btnBook.setBackground(new Color(6, 7, 29));
+        btnCom.setBackground(new Color(6, 7, 29));
+        btnProfile.setBackground(new Color(6, 7, 29));
+        btnlogout.setBackground(new Color(6, 7, 29));
+    }//GEN-LAST:event_btnTravelMActionPerformed
+
+    private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
+        toDash();
+    }//GEN-LAST:event_btnHomeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -254,16 +642,14 @@ public class OverviewFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLayeredPane bodyContainer;
-    private javax.swing.JPanel container;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
+    static javax.swing.JButton btnBook;
+    static javax.swing.JButton btnCom;
+    static javax.swing.JButton btnHome;
+    static javax.swing.JButton btnProfile;
+    static javax.swing.JButton btnTravelM;
+    static javax.swing.JButton btnlogout;
+    private javax.swing.JPanel cmain;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel mainMenu;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,10 +1,10 @@
 package com.mirrorcompany.view.main;
 
 import com.mirrorcompany.events.EventMenuSelected;
-import com.mirrorcompany.view.comp.MenuLayout;
 import com.mirrorcompany.view.form.Form_1;
 import com.mirrorcompany.view.form.Form_2;
 import com.mirrorcompany.view.form.MainForm;
+import com.mirrorcompany.view.form.community.TestLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -20,14 +20,14 @@ public class Main extends javax.swing.JFrame {
 
     private final MigLayout layout;
     private final MainForm main;
-    private final MenuLayout menu;
+    private final TestLayout menu;
     private final Animator animator;
 
     public Main() {
         initComponents();
         layout = new MigLayout("fill", "0[fill]0", "0[fill]0");
         main = new MainForm();
-        menu = new MenuLayout();
+        menu = new TestLayout();
         menu.getMenu().initMoving(Main.this);
         main.initMoving(Main.this);
         mainPanel.setLayer(menu, JLayeredPane.POPUP_LAYER);
@@ -91,9 +91,9 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 if (index == 0){
-                    main.show(new Form_1());
+                    main.showComp(new Form_1());
                 } else if (index == 1) {
-                    main.show(new Form_2());
+                    main.showComp(new Form_2());
                 }
             }
         });

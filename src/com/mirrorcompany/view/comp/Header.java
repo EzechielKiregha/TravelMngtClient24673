@@ -2,6 +2,7 @@ package com.mirrorcompany.view.comp;
 
 
 import com.mirrorcompany.swing_designs.shadow.ShadowRenderer;
+import com.mirrorcompany.view.swing.Button;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,6 +26,8 @@ public class Header extends javax.swing.JPanel {
 
         cmdMenu = new com.mirrorcompany.view.swing.Button();
 
+        setBackground(new java.awt.Color(6, 7, 29));
+
         cmdMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/menu.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -32,9 +35,9 @@ public class Header extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(184, 184, 184)
                 .addComponent(cmdMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(369, Short.MAX_VALUE))
+                .addContainerGap(195, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -72,13 +75,16 @@ public class Header extends javax.swing.JPanel {
         this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent me) {
-                fram.setLocation(me.getXOnScreen() - x, me.getYOnScreen() - y);
+                fram.setLocation(me.getXOnScreen() - (x + 80), me.getYOnScreen() - y);
             }
         });
     }
 
     public void addEventMenu(ActionListener event) {
         cmdMenu.addActionListener(event);
+    }
+    public Button getBtn(){
+        return cmdMenu;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
