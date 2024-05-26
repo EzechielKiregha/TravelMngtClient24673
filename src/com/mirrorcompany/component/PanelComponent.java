@@ -42,7 +42,7 @@ import net.miginfocom.swing.MigLayout;
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/icons/LogoSmart.png")));
         add(logo);
         
-        title = new JLabel("Smart Home Energy");
+        title = new JLabel("Travel ManageR");
         title.setFont(new Font("sansserif", 1, 30));
         title.setForeground(new Color(245, 245, 245));
         title.setFont(new Font("sansserif", 1, 32));
@@ -90,7 +90,7 @@ import net.miginfocom.swing.MigLayout;
     @Override
     protected void paintComponent(Graphics grphcs) {
         Graphics2D g2 = (Graphics2D) grphcs;
-        GradientPaint gra = new GradientPaint(0,0, new Color(52, 180, 141), 0, getHeight(), new Color(11, 95, 86));
+        GradientPaint gra = new GradientPaint(0,0, Color.decode("#000046"), 0, getHeight(), Color.decode("#1CB5E0"));
         g2.setPaint(gra);
         g2.fillRect(0, 0, getWidth(), getHeight());
         super.paintComponent(grphcs);

@@ -84,7 +84,7 @@ public class Home extends javax.swing.JPanel {
     private void initComponents() {
 
         topView = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        userName = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         centerView = new javax.swing.JPanel();
@@ -148,9 +148,9 @@ public class Home extends javax.swing.JPanel {
         topView.setBackground(new java.awt.Color(43, 115, 232));
         topView.setPreferredSize(new java.awt.Dimension(0, 150));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Ezechiel");
+        userName.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        userName.setForeground(new java.awt.Color(255, 255, 255));
+        userName.setText("Ezechiel");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -171,7 +171,7 @@ public class Home extends javax.swing.JPanel {
                     .addGroup(topViewLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         topViewLayout.setVerticalGroup(
@@ -180,7 +180,7 @@ public class Home extends javax.swing.JPanel {
                 .addGap(31, 31, 31)
                 .addGroup(topViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27))
@@ -815,7 +815,6 @@ public class Home extends javax.swing.JPanel {
     private com.mirrorcompany.view.swing.ImageAvatar imageAvatar1;
     private com.mirrorcompany.view.swing.ImageAvatar imageAvatar2;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -855,5 +854,6 @@ public class Home extends javax.swing.JPanel {
     private static com.mirrorcompany.swing_designs.Table table1;
     private static com.mirrorcompany.swing_designs.Table table2;
     private static javax.swing.JPanel topView;
+    public javax.swing.JLabel userName;
     // End of variables declaration//GEN-END:variables
 }

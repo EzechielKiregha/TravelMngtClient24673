@@ -1,17 +1,29 @@
 package com.mirrorcompany.view;
 
 import com.mirrorcompany.component.LogOutPopUp;
+import com.mirrorcompany.component.Message;
 import com.mirrorcompany.events.EventMenuSelected;
+import com.mirrorcompany.model.Itinerary;
+import com.mirrorcompany.model.TripSegment;
+import com.mirrorcompany.model.User;
+import com.mirrorcompany.service.ItineraryService;
+import com.mirrorcompany.service.UserService;
 import com.mirrorcompany.view.comp.MenuLayout;
 import com.mirrorcompany.view.form.Form_1;
 import com.mirrorcompany.view.form.Form_2;
 import com.mirrorcompany.view.form.community.CommunityPlatform;
 import com.mirrorcompany.view.form.dash.Home;
 import com.mirrorcompany.view.form.flight.FlightBooking;
+import com.mirrorcompany.view.form.flight.bookForm_1;
 import com.mirrorcompany.view.form.profile.PanelProfile;
 import com.mirrorcompany.view.form.profile.UserProfile;
 import com.mirrorcompany.view.form.travel.NewItineraryPopUp;
+import com.mirrorcompany.view.form.travel.Recommend;
 import com.mirrorcompany.view.form.travel.TMS;
+import com.mirrorcompany.view.form.travel.ViewItineraries;
+import com.mirrorcompany.view.form.travel.TmsExpenses;
+import com.mirrorcompany.view.form.travel.AddTripSegment;
+import com.mirrorcompany.view.form.travel.tmsForm_1;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -20,6 +32,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
@@ -41,17 +59,24 @@ public class OverviewFrame extends javax.swing.JFrame {
     
     private static TMS tms;
     private static NewItineraryPopUp itinerary;
+    private static ViewItineraries viewItinerary;
+    private static TmsExpenses expenses;
+    private static AddTripSegment tripSegment;
+    private static Recommend recommendation;
     
     private static Home dash;
     private static CommunityPlatform mainC;
     private static UserProfile mainP;
     private static FlightBooking mainB;
     
-    public OverviewFrame() {
+    private static final String RMI_SERVER = "UserService";
+    private static final String RMI_SERVER_ITINERARY = "ItineraryService";
+    private static User user;
+    
+    public OverviewFrame(User user) {
         initComponents();
         initializeButtons();
-        
-        
+        System.out.println("Hello World!");
         tms = new TMS();
         mainB = new FlightBooking();
         mainC = new CommunityPlatform();
@@ -61,12 +86,12 @@ public class OverviewFrame extends javax.swing.JFrame {
         logout = new LogOutPopUp();
         myProfile = new PanelProfile();
         
-        
         // START CODE REGARDING TMS TAB
-        
+            
         itinerary = new NewItineraryPopUp();
-        
-        // ENS CODE REGARDING TMS TAB
+        viewItinerary = new ViewItineraries();
+        expenses = new TmsExpenses();
+        recommendation = new Recommend();
         
         body = new JLayeredPane();
         layout = new MigLayout("fill", "0[fill]0", "0[fill]0");
@@ -77,21 +102,46 @@ public class OverviewFrame extends javax.swing.JFrame {
         getContentPane().add(body, BorderLayout.EAST);
         body.setSize(new Dimension(1050, 720));
         body.setPreferredSize(new Dimension(1050, 720));
-
-        toDash();
+        try {
+            if (user != null){
+                this.user = user;
+                itinerary.setUser(user);
+                toDash(dash);
+                dash.userName.setText(user.getUsername());
+                showMessage(Message.MessageType.SUCCESS, "Login Successfull! " + user.getUsername());
+                System.out.println("Login successful!");
+            } else {
+                showLogout();
+                logout.LogMeIn.setVisible(false);
+                logout.QuitTheApp.setVisible(false);
+                logout.logoutMessage.setText("SESSION HAS EXPIRED");
+                showMessage(Message.MessageType.ERROR, "SESSION HAS EXPIRED, LOGIN PLEASE");
+                System.out.println("SESSION HAS EXPIRED LOGIN PLEASE");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                       try{
+                            Thread.sleep(9000);
+                            Main main = new Main();
+                            main.setVisible(true);
+                            dispose();
+                       }catch (InterruptedException e){
+                           System.err.println(e);
+                       }
+                    }
+                }).start();
+                
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            
+        }
+        
         
         btnTravelM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (myProfile.isVisible()){
-                    myProfile.setVisible(false);
-                    removeComponentIfExists(myProfile);
-                }
-                removeComponentIfExists(dash);
-                removeComponentIfExists(mainB);
-                removeComponentIfExists(mainC);
-                removeComponentIfExists(mainP);
-                removeComponentIfExists(logout);
+                removeAllComponentIfExist();
                 updateMenuList(menuLayout, 1); // this will trigger the menu list for travel management to display in Menu class
                 tms.initMoving(OverviewFrame.this);
                 showComponent(tms);
@@ -101,15 +151,7 @@ public class OverviewFrame extends javax.swing.JFrame {
         btnBook.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (myProfile.isVisible()){
-                    myProfile.setVisible(false);
-                    removeComponentIfExists(myProfile);
-                }
-                removeComponentIfExists(dash);
-                removeComponentIfExists(tms);
-                removeComponentIfExists(mainC);
-                removeComponentIfExists(mainP);
-                removeComponentIfExists(logout);
+                removeAllComponentIfExist();
                 updateMenuList(menuLayout, 2); // this will trigger the menu list for booking flight to display in Menu class
                 mainB.initMoving(OverviewFrame.this);
                 showComponent(mainB);
@@ -119,15 +161,7 @@ public class OverviewFrame extends javax.swing.JFrame {
         btnCom.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (myProfile.isVisible()){
-                    myProfile.setVisible(false);
-                    removeComponentIfExists(myProfile);
-                }
-                removeComponentIfExists(dash);
-                removeComponentIfExists(tms);
-                removeComponentIfExists(mainB);
-                removeComponentIfExists(mainP);
-                removeComponentIfExists(logout);
+                removeAllComponentIfExist();
                 updateMenuList(menuLayout, 3); // this will trigger the menu list for Community to display in Menu class
                 mainC.initMoving(OverviewFrame.this);
                 showComponent(mainC);
@@ -137,11 +171,7 @@ public class OverviewFrame extends javax.swing.JFrame {
         btnProfile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                removeComponentIfExists(dash);
-                removeComponentIfExists(tms);
-                removeComponentIfExists(mainB);
-                removeComponentIfExists(mainC);
-                removeComponentIfExists(logout);
+                removeAllComponentIfExist();
                 updateMenuList(menuLayout, 4);
                  // this will trigger the menu list for profile to display in Menu class
                 mainP.initMoving(OverviewFrame.this);
@@ -153,15 +183,7 @@ public class OverviewFrame extends javax.swing.JFrame {
         btnlogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (myProfile.isVisible()){
-                    myProfile.setVisible(false);
-                    removeComponentIfExists(myProfile);
-                }
-                removeComponentIfExists(dash);
-                removeComponentIfExists(tms);
-                removeComponentIfExists(mainB);
-                removeComponentIfExists(mainC);
-                removeComponentIfExists(mainP);
+                removeAllComponentIfExist();
                 showLogout();
             }
         });
@@ -175,19 +197,45 @@ public class OverviewFrame extends javax.swing.JFrame {
         dash.newItineraryEvt(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (myProfile.isVisible()){
-                    myProfile.setVisible(false);
-                    removeComponentIfExists(myProfile);
-                }
-                removeComponentIfExists(dash);
-                removeComponentIfExists(mainB);
-                removeComponentIfExists(mainC);
-                removeComponentIfExists(mainP);
-                removeComponentIfExists(logout);
+                removeAllComponentIfExist();
                 updateMenuList(menuLayout, 1); // this will trigger the menu list for travel management to display in Menu class
                 tms.initMoving(OverviewFrame.this);
                 showComponent(tms);
-                showNewItinerary();
+                tms.show(new tmsForm_1());
+                tms.showPopUp(itinerary);
+            }
+        });
+        dash.addExpEvt(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                removeAllComponentIfExist();
+                updateMenuList(menuLayout, 1); // this will trigger the menu list for travel management to display in Menu class
+                tms.initMoving(OverviewFrame.this);
+                showComponent(tms);
+                tms.show(new tmsForm_1());
+                tms.showPopUp(expenses);
+            }
+        });
+        dash.bookEvt(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                removeAllComponentIfExist();
+                updateMenuList(menuLayout, 2); // this will trigger the menu list for travel management to display in Menu class
+                mainB.initMoving(OverviewFrame.this);
+                showComponent(mainB);
+                mainB.show(new bookForm_1());
+//                mainB.showPopUp();
+            }
+        });
+        dash.joinCommunityEvt(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                removeAllComponentIfExist();
+                updateMenuList(menuLayout, 3); // this will trigger the menu list for travel management to display in Menu class
+                mainC.initMoving(OverviewFrame.this);
+                showComponent(mainB);
+                mainC.show(new bookForm_1());
+//                mainB.showPopUp();
             }
         });
         
@@ -244,17 +292,8 @@ public class OverviewFrame extends javax.swing.JFrame {
         body.repaint();
     }
     
-    public static void toDash(){
-        dash = new Home();
-        if (myProfile.isVisible()){
-            myProfile.setVisible(false);
-            removeComponentIfExists(myProfile);
-        }
-        removeComponentIfExists(mainC);
-        removeComponentIfExists(tms);
-        removeComponentIfExists(mainB);
-        removeComponentIfExists(mainP);
-        removeComponentIfExists(logout);
+    public static void toDash(Home dash){
+        removeAllComponentIfExist();
         btnHome.setBackground(new Color(54, 81, 207));
         btnTravelM.setBackground(new Color(6, 7, 29));
         btnBook.setBackground(new Color(6, 7, 29));
@@ -263,8 +302,24 @@ public class OverviewFrame extends javax.swing.JFrame {
         btnlogout.setBackground(new Color(6, 7, 29));
         showComponent(dash);
     }
+    
+    public static void removeAllComponentIfExist(){
+        removeComponentIfExists(myProfile);
+        removeComponentIfExists(itinerary);
+        removeComponentIfExists(expenses);
+        removeComponentIfExists(recommendation);
+        removeComponentIfExists(mainC);
+        removeComponentIfExists(dash);
+        removeComponentIfExists(tms);
+        removeComponentIfExists(mainB);
+        removeComponentIfExists(mainP);
+        removeComponentIfExists(logout);
+    }
+
+    
     public void showLogout() {
         if (logout != null) {
+            removeAllComponentIfExist();
             body.setLayout(layout);
             logout.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
             body.setLayer(logout, JLayeredPane.POPUP_LAYER);
@@ -274,19 +329,10 @@ public class OverviewFrame extends javax.swing.JFrame {
             logout.setVisible(true);
         }
     }
-    public void showNewItinerary() {
-        if (itinerary != null) {
-            body.setLayout(layout);
-            logout.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
-            body.setLayer(itinerary, JLayeredPane.POPUP_LAYER);
-            body.add(itinerary, "pos 0 0 100% 100%");
-            body.repaint();
-            body.revalidate();
-            itinerary.setVisible(true);
-        }
-    }
+    
     public void showProfile(){
         if (myProfile != null) {
+            removeAllComponentIfExist();
             body.setLayout(layout);
             myProfile.setBounds(235, 35, getWidth() - 230, getHeight() - 25);
             body.setLayer(myProfile, JLayeredPane.POPUP_LAYER);
@@ -386,6 +432,15 @@ public class OverviewFrame extends javax.swing.JFrame {
             btn.setUI(new BasicButtonUI());
         }
     }
+    
+    public static void removeTMSPopUpsIfExist(){
+        tms.removeComponentIfExists(itinerary);
+        tms.removeComponentIfExists(expenses);
+        tms.removeComponentIfExists(tripSegment);
+        tms.removeComponentIfExists(viewItinerary);
+        tms.removeComponentIfExists(recommendation);
+    }
+    
     private void updateMenuList(MenuLayout menu, int selectedTab) {
         switch (selectedTab) {
             case 1: // Travel Management System (TMS)
@@ -395,10 +450,23 @@ public class OverviewFrame extends javax.swing.JFrame {
                 menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
                     @Override
                     public void selected(int index) {
+                        tms.show(new tmsForm_1());
                         if (index == 0){
-                            tms.show(new Form_1());
+                            removeTMSPopUpsIfExist();
+                            tms.showPopUp(viewItinerary);
                         } else if (index == 1) {
-                            tms.show(new Form_2());
+                            removeTMSPopUpsIfExist();
+                            tms.showPopUp(itinerary);
+                        } else if (index == 2){
+                            removeTMSPopUpsIfExist();
+                            tms.showPopUp(expenses);
+                        } else if(index == 3){
+                            removeTMSPopUpsIfExist();
+                            tms.showPopUp(tripSegment);
+                        }
+                        else if(index == 4){
+                            removeTMSPopUpsIfExist();
+                            tms.showPopUp(recommendation);
                         }
                     }
                 });
@@ -453,6 +521,61 @@ public class OverviewFrame extends javax.swing.JFrame {
         }
     }
     
+    public void showMessage(Message.MessageType messageType, String message){
+        Message msg = new Message();
+        msg.showMessage(messageType, message);
+        removeComponentIfExists(msg);
+        TimingTarget target = new TimingTargetAdapter(){
+            @Override
+            public void begin() {
+                if (!msg.isShow()){
+                    body.add(msg, "pos 0.5al -30", 0); //0.5al means align horizontally to the center and -30 means offset from the bottom by -30 pixels
+                    msg.setVisible(true);
+                    body.repaint();
+                }
+            }
+
+            @Override
+            public void timingEvent(float fraction) {
+                float f;
+                if (msg.isShow()){
+                    f = 40 * (1f - fraction);
+                }else {
+                    f = 40 * fraction;
+                }
+                layout.setComponentConstraints(msg, "pos 0.5al "+(int)(f - 30));
+                body.repaint();
+                body.revalidate();
+            }
+
+            @Override
+            public void end() {
+                if(msg.isShow()){
+                    body.remove(msg);
+                    body.repaint();
+                    body.revalidate();
+                }else{
+                    msg.setShow(true);
+                }
+            }
+        };
+        Animator animator = new Animator(300, target);
+        animator.setResolution(0);
+        animator.setAcceleration(0.5f);
+        animator.setDeceleration(0.5f);
+        animator.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+               try{
+                   Thread.sleep(9000);
+                   animator.start();
+               }catch (InterruptedException e){
+                   System.err.println(e);
+               }
+            }
+        }).start();
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -603,7 +726,7 @@ public class OverviewFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTravelMActionPerformed
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
-        toDash();
+        toDash(dash);
     }//GEN-LAST:event_btnHomeActionPerformed
 
     /**
@@ -636,7 +759,7 @@ public class OverviewFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new OverviewFrame().setVisible(true);
+                new OverviewFrame(user).setVisible(true);
             }
         });
     }

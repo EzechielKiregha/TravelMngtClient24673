@@ -4,14 +4,15 @@ package com.mirrorcompany.model;
  *
  * @author ekire
  */
+import java.io.Serializable;
 import javax.persistence.*;
 import java.util.List;
 
 
 @Entity
 @Table(name = "recommendations")
-public class Recommendation implements java.io.Serializable {
-
+public class Recommendation implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recommendation_id")

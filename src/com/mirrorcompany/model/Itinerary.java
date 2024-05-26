@@ -4,13 +4,16 @@ package com.mirrorcompany.model;
  *
  * @author ekire
  */
+import java.io.Serializable;
+import java.sql.Date;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "itineraries")
-public class Itinerary implements java.io.Serializable {
+public class Itinerary implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +24,10 @@ public class Itinerary implements java.io.Serializable {
     private String title;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private Date startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    private Date endDate;
 
     @Column(name = "description")
     private String description;
@@ -33,7 +36,7 @@ public class Itinerary implements java.io.Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TripSegment> tripSegments;
 
     // Constructors, getters, and setters
@@ -41,7 +44,7 @@ public class Itinerary implements java.io.Serializable {
     public Itinerary() {
     }
 
-    public Itinerary(String title, LocalDate startDate, LocalDate endDate, String description, User user, List<TripSegment> tripSegments) {
+    public Itinerary(String title, Date startDate, Date endDate, String description, User user, List<TripSegment> tripSegments) {
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -70,19 +73,19 @@ public class Itinerary implements java.io.Serializable {
         this.title = title;
     }
 
-    public LocalDate getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

@@ -1,13 +1,16 @@
 package com.mirrorcompany.model;
 
+import com.mirrorcompany.community.model.Comment;
+import com.mirrorcompany.community.model.Update;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User implements java.io.Serializable {
-
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -30,6 +33,12 @@ public class User implements java.io.Serializable {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Expense> expenses;
+    
+    @OneToMany(mappedBy = "postedBy")
+    private List<Update> updates;
+
+    @OneToMany(mappedBy = "postedBy")
+    private List<Comment> comments;
 
     @ManyToMany
     @JoinTable(
@@ -123,6 +132,22 @@ public class User implements java.io.Serializable {
 
     public void setExpenses(List<Expense> expenses) {
         this.expenses = expenses;
+    }
+
+    public List<Update> getUpdates() {
+        return updates;
+    }
+
+    public void setUpdates(List<Update> updates) {
+        this.updates = updates;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     public List<Recommendation> getRecommendations() {

@@ -35,7 +35,7 @@ public class ServiceMailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
-            message.setSubject("Smart Home Energy | Verification Code");
+            message.setSubject("Travel ManageR | Verification Your OTP Code");
             message.setText(code);
             Transport.send(message);
             ms.setSuccess(true);

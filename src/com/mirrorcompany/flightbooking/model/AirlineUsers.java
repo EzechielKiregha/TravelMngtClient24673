@@ -13,7 +13,8 @@ import javax.persistence.*;
  * @author DRG
  */
 @Entity
-public class AirlineUsers implements Serializable{
+public class AirlineUsers implements Serializable {
+    private static final long serialVersionUID = 1L;
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Integer Id;

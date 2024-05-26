@@ -7,9 +7,8 @@ import com.mirrorcompany.component.PanelLoginAndRegister;
 import com.mirrorcompany.component.PanelPasswordForgotten;
 import com.mirrorcompany.component.PanelVerifyCode;
 import com.mirrorcompany.dao.ServiceMailDao;
-import com.mirrorcompany.dao.UserDao;
 import com.mirrorcompany.model.MessageModel;
-import com.mirrorcompany.model.UserModel;
+import com.mirrorcompany.service.UserService;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -20,6 +19,12 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
+import com.mirrorcompany.model.User;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,132 +43,140 @@ public class Main extends javax.swing.JFrame {
     private boolean isLogin;
     private final DecimalFormat df = new DecimalFormat("##0.###");
     private PanelLoginAndRegister loginAndRegister;
-    public UserDao userDao;
     
-    private Dash userDashBoard;
-    private AdministrationPanel adminDashBoard;
-    
+    private static final String RMI_SERVER_USER = "UserService";
+    public User user;
     public Main() {
         initComponents();
         init();
     }
 
     private void init(){
-        userDao = new UserDao();
         Layout = new MigLayout("fill, insets 0");
         cover = new PanelComponent();
         loading = new PanelLoading();
         verifyCode = new PanelVerifyCode();
         pwdForgotten = new PanelPasswordForgotten();
-        
-        ActionListener eventRegister = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                UserModel user = loginAndRegister.getUser();
-                register(user);
-            }
-        };
-        ActionListener eventPasswordForgotten = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                changePassword();
-            }
-        };
-        
-        ActionListener eventLogin = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                UserModel user = loginAndRegister.getUser();
-                login(user);
-            }
-        };
-        loginAndRegister = new PanelLoginAndRegister(eventRegister, eventLogin, eventPasswordForgotten);
-        TimingTarget target = new TimingTargetAdapter(){
-            @Override
-            public void timingEvent(float fraction) {
-                double fractionCover;
-                double fractionLogin;
-                double size = coverSize;
-                if(fraction <= 0.5f){
-                    size += fraction * addSize;
-                }else{
-                    size += addSize - fraction * addSize;
+        try {
+            
+            Registry theRegistry = LocateRegistry.getRegistry("127.0.0.1", 1099);
+            UserService userService = (UserService) theRegistry.lookup(RMI_SERVER_USER);
+            user = new User();
+
+            ActionListener eventRegister = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    User user = loginAndRegister.getUser();
+                    register(user);
                 }
-                if(isLogin){
-                    fractionCover = 1f - fraction;
-                    fractionLogin = fraction;
+            };
+            ActionListener eventPasswordForgotten = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    changePassword();
+                }
+            };
+
+            ActionListener eventLogin = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    User user = loginAndRegister.getUser();
+                    login(user);
+                }
+            };
+            loginAndRegister = new PanelLoginAndRegister(eventRegister, eventLogin, eventPasswordForgotten);
+            TimingTarget target = new TimingTargetAdapter(){
+                @Override
+                public void timingEvent(float fraction) {
+                    double fractionCover;
+                    double fractionLogin;
+                    double size = coverSize;
+                    if(fraction <= 0.5f){
+                        size += fraction * addSize;
+                    }else{
+                        size += addSize - fraction * addSize;
+                    }
+                    if(isLogin){
+                        fractionCover = 1f - fraction;
+                        fractionLogin = fraction;
+                        if(fraction >= 0.5f){
+                            cover.registerRight(fractionCover * 100);
+                        }else{
+                            cover.loginRight(fractionLogin * 100);
+                        }
+                    }else{
+                        fractionCover = fraction;
+                        fractionLogin = 1f - fraction;
+                        if (fraction <= 0.5f){
+                            cover.registerLeft(fraction * 100);
+                        }else{
+                            cover.loginLeft((1f - fraction)* 100);
+                        }
+                    }
                     if(fraction >= 0.5f){
-                        cover.registerRight(fractionCover * 100);
-                    }else{
-                        cover.loginRight(fractionLogin * 100);
+                        loginAndRegister.showRegister(isLogin);
                     }
-                }else{
-                    fractionCover = fraction;
-                    fractionLogin = 1f - fraction;
-                    if (fraction <= 0.5f){
-                        cover.registerLeft(fraction * 100);
-                    }else{
-                        cover.loginLeft((1f - fraction)* 100);
+                    fractionCover = Double.valueOf(df.format(fractionCover));
+                    fractionLogin = Double.valueOf(df.format(fractionLogin));
+                    Layout.setComponentConstraints(cover, "width "+size+"%, pos "+fractionCover+"al 0 n 100%");
+                    Layout.setComponentConstraints(loginAndRegister, "width "+loginSize+"%, pos "+fractionLogin+"al 0 n 100%");
+
+                    bg.revalidate();
+                }
+
+                @Override
+                public void end() {
+                    isLogin = !isLogin;
+                }  
+            };
+            Animator animator = new Animator(800, target);
+            animator.setAcceleration(0.5f);
+            animator.setDeceleration(0.5f);
+            animator.setResolution(0);
+            bg.setLayout(Layout);
+            bg.setLayer(loading, JLayeredPane.POPUP_LAYER);
+            bg.setLayer(verifyCode, JLayeredPane.POPUP_LAYER);
+            bg.setLayer(pwdForgotten, JLayeredPane.POPUP_LAYER);
+            bg.add(loading, "pos 0 0 100% 100%");
+            bg.add(verifyCode, "pos 0 0 100% 100%");
+            bg.add(pwdForgotten, "pos 0 0 100% 100%");
+            bg.add(cover, "width "+coverSize+"%, pos 0al 0 n 100%");
+            bg.add(loginAndRegister, "width "+loginSize+"%, pos 1al 0 n 100%");
+
+            cover.addEvent(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    if(!animator.isRunning()){
+                        animator.start();
                     }
                 }
-                if(fraction >= 0.5f){
-                    loginAndRegister.showRegister(isLogin);
+            });
+            verifyCode.addEventButtonOK(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    User user = loginAndRegister.getUser();
+                    try {
+                        if (userService.verifyUser(user.getUserId(), verifyCode.getInputCode())){
+                            showMessage(Message.MessageType.SUCCESS, "Registered Successfully!");
+                            verifyCode.setVisible(false);
+                        } else {
+                            showMessage(Message.MessageType.ERROR, "Wrong Verification Code");
+                        }
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-                fractionCover = Double.valueOf(df.format(fractionCover));
-                fractionLogin = Double.valueOf(df.format(fractionLogin));
-                Layout.setComponentConstraints(cover, "width "+size+"%, pos "+fractionCover+"al 0 n 100%");
-                Layout.setComponentConstraints(loginAndRegister, "width "+loginSize+"%, pos "+fractionLogin+"al 0 n 100%");
+            });
 
-                bg.revalidate();
-            }
+            pwdForgotten.addEventButtonOK(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
 
-            @Override
-            public void end() {
-                isLogin = !isLogin;
-            }  
-        };
-        Animator animator = new Animator(800, target);
-        animator.setAcceleration(0.5f);
-        animator.setDeceleration(0.5f);
-        animator.setResolution(0);
-        bg.setLayout(Layout);
-        bg.setLayer(loading, JLayeredPane.POPUP_LAYER);
-        bg.setLayer(verifyCode, JLayeredPane.POPUP_LAYER);
-        bg.setLayer(pwdForgotten, JLayeredPane.POPUP_LAYER);
-        bg.add(loading, "pos 0 0 100% 100%");
-        bg.add(verifyCode, "pos 0 0 100% 100%");
-        bg.add(pwdForgotten, "pos 0 0 100% 100%");
-        bg.add(cover, "width "+coverSize+"%, pos 0al 0 n 100%");
-        bg.add(loginAndRegister, "width "+loginSize+"%, pos 1al 0 n 100%");
-        
-        cover.addEvent(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if(!animator.isRunning()){
-                    animator.start();
                 }
-            }
-        });
-        verifyCode.addEventButtonOK(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                UserModel user = loginAndRegister.getUser();
-                if (userDao.verifyCodeWithUser(user.getUserID(), verifyCode.getInputCode())){
-                    userDao.doneVerify(user.getUserID());
-                    showMessage(Message.MessageType.SUCCESS, "Registered Successfully!");
-                    verifyCode.setVisible(false);
-                } else {
-                    showMessage(Message.MessageType.ERROR, "Wrong Verification Code");
-                }
-            }
-        });
-        
-        pwdForgotten.addEventButtonOK(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                
-            }
-        });
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         
     }
     
@@ -181,71 +194,83 @@ public class Main extends javax.swing.JFrame {
     // Return true if the email matches the pattern, false otherwise
     return matcher.matches();
 }
-    private void register(UserModel user){
-        if (user != null) {
-            String email = user.getEmail();
-            String username = user.getEmail();
-            String pwd = user.getPassword();
-            String role = user.getRole();
-            if(email.equals("") || username.equals("")){
-                System.out.println("Email & Username is required");
-                showMessage(Message.MessageType.ERROR, "Email & Username is required");
-            } else if (!isValidEmail(user.getEmail())) {
-                System.out.println("Invalid Email Address");
-                showMessage(Message.MessageType.ERROR, "Invalid Email Address");
-            } else if(pwd.equals("")) {
-                System.out.println("Password is required");
-                showMessage(Message.MessageType.ERROR, "Password is required");
-            } else if(role.equals("")){
-                System.out.println("Role is missing");
-                showMessage(Message.MessageType.ERROR, "Role is missing!");
-            } else if (userDao.isUserDuplicated(user.getUsername())) {
-                System.out.println("User Name Already Exist");
-                showMessage(Message.MessageType.ERROR, "User Name Already Exist");
-            } else if (userDao.isEmailDuplicated(user.getEmail())) {
-                System.out.println("Email Already Exist");
-                showMessage(Message.MessageType.ERROR, "Email Already Exist");
-            } else if(verifyCode.equals("")){
-                showMessage(Message.MessageType.ERROR, "Code was not generaed!");
-                System.out.println("Code was not generaed!");
-            } else {
-                if(userDao.registerUser(user, user.getVerifyCode()))
-                    sendMail(user);
+    private void register(User user){
+        
+        try {
+            Registry theRegistry = LocateRegistry.getRegistry("127.0.0.1", 1099);
+            UserService userService = (UserService) theRegistry.lookup(RMI_SERVER_USER);
+            
+            if (user != null) {
+                String email = user.getEmail();
+                String username = user.getEmail();
+                String pwd = user.getPassword();
+                if (email.equals("") || username.equals("")) {
+                    System.out.println("Email & Username is required");
+                    showMessage(Message.MessageType.ERROR, "Email & Username is required");
+                } else if (!isValidEmail(user.getEmail())) {
+                    System.out.println("Invalid Email Address");
+                    showMessage(Message.MessageType.ERROR, "Invalid Email Address");
+                } else if (pwd.equals("")) {
+                    System.out.println("Password is required");
+                    showMessage(Message.MessageType.ERROR, "Password is required");
+//                } else if (userService.isUsernameDuplicated(user.getUsername())) {
+//                    System.out.println("User Name Already Exist");
+//                    showMessage(Message.MessageType.ERROR, "User Name Already Exist");
+                } else if (userService.isEmailDuplicated(user.getEmail())) {
+                    System.out.println("Email Already Exist");
+                    showMessage(Message.MessageType.ERROR, "Email Already Exist");
+                } else if (verifyCode.equals("")) {
+                    showMessage(Message.MessageType.ERROR, "Code was not generaed!");
+                    System.out.println("Code was not generaed!");
+                } else {
+                    if (userService.registerUser(user)) {
+                        sendMail(user);
+                    }
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
-    public void login(UserModel user){
-        if (user != null){
-            String email = user.getEmail();
-            String pwd = user.getPassword();
-            if (email.isEmpty() && pwd.isEmpty()){
-                System.out.println("fields can not be empty");
-                showMessage(Message.MessageType.ERROR, "Fields cannot be empty");
-            } else if(pwd.equals("")){
-                System.out.println("password field is empty");
-                showMessage(Message.MessageType.ERROR, "The Password Field Is Empty.");
-            }else if(email.equals("")) {
-                System.out.println("email field is empty");
-                showMessage(Message.MessageType.ERROR, "The Email Field Is Empty.");
-            
-            }else if (isValidEmail(email)) {
-                boolean userChecked = userDao.loginCheck(email, pwd);
-                if (userChecked){
-                    user = userDao.SearchUserByEmail(email);
-                    if (user != null)
-                        redirecting(user);
-                }else {
-                    System.out.println("Wrong Email Or Password");
-                    showMessage(Message.MessageType.ERROR, "Wrong Email Or Password");
+    public void login(User user){
+        try {
+            Registry theRegistry = LocateRegistry.getRegistry("127.0.0.1", 1099);
+            UserService userService = (UserService) theRegistry.lookup(RMI_SERVER_USER);
+            if (user != null) {
+                String email = user.getEmail();
+                String pwd = user.getPassword();
+                if (email.isEmpty() && pwd.isEmpty()) {
+                    System.out.println("fields can not be empty");
+                    showMessage(Message.MessageType.ERROR, "Fields cannot be empty");
+                } else if (pwd.equals("")) {
+                    System.out.println("password field is empty");
+                    showMessage(Message.MessageType.ERROR, "The Password Field Is Empty.");
+                } else if (email.equals("")) {
+                    System.out.println("email field is empty");
+                    showMessage(Message.MessageType.ERROR, "The Email Field Is Empty.");
+                    
+                } else if (isValidEmail(email)) {
+                    boolean userChecked = userService.verifyUserCredentials(user);
+                    if (userChecked) {
+                        user = userService.findUserByEmail(email);
+                        if (user != null) {
+                            redirecting(user);
+                        }
+                    } else {
+                        System.out.println("Wrong Email Or Password");
+                        showMessage(Message.MessageType.ERROR, "Wrong Email Or Password");
+                    }
+                } else {
+                    System.out.println("invalid email");
+                    showMessage(Message.MessageType.ERROR, "Invalid Email Address");
                 }
-            }else {
-                System.out.println("invalid email");
-                showMessage(Message.MessageType.ERROR, "Invalid Email Address");
             }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
     }
-    public void redirecting(UserModel user){
+    public void redirecting(User user){
         bg.setLayout(Layout);
         bg.setLayer(loading, JLayeredPane.POPUP_LAYER);
         bg.add(loading, "pos 0 0 100% 100%");
@@ -259,17 +284,11 @@ public class Main extends javax.swing.JFrame {
                     e.printStackTrace();
                 }
                 if (user != null){
-                    String email = user.getEmail();
-                    String role = user.getRole();
-                    String status = user.getStatus();
-                    int userid = user.getUserID();
                     showMessage(Message.MessageType.SUCCESS, "Success | Redirecting...");
-                    if (role.toLowerCase().equals("admin")){
-                        adminDashBoard = new AdministrationPanel(email, role, status);
-                        adminDashBoard.setVisible(true);
-                        loading.setVisible(false);
-                        dispose();
-                    }
+                    OverviewFrame frame = new OverviewFrame(user);
+                    frame.setVisible(true);
+                    loading.setVisible(false);
+                    dispose();
                     
                 } else {
                     loading.setVisible(false);
@@ -298,15 +317,15 @@ public class Main extends javax.swing.JFrame {
         
     }
     
-    public void sendMail(UserModel user){
+    public void sendMail(User user){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 loading.setVisible(true);
                 String email = user.getEmail();
-                String code = user.getVerifyCode();
+                String code = user.getVerificationCode();
                 System.out.println("Email: "+email+"\nCode: "+code);
-                MessageModel msg = new ServiceMailDao().sendMain(user.getEmail(), user.getVerifyCode());
+                MessageModel msg = new ServiceMailDao().sendMain(user.getEmail(), code);
                 if (msg.isSuccess()){
                     loading.setVisible(false);
                     verifyCode.setVisible(true);

@@ -15,7 +15,8 @@ import javax.persistence.*;
  * @author DRG
  */
 @Entity
-public class Flight implements Serializable{
+public class Flight implements Serializable {
+    private static final long serialVersionUID = 1L;
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Integer Id;

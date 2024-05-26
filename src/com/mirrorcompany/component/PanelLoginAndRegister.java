@@ -2,7 +2,7 @@
 package com.mirrorcompany.component;
 
 import com.mirrorcompany.dao.UserDao;
-import com.mirrorcompany.model.UserModel;
+import com.mirrorcompany.model.User;
 import com.mirrorcompany.swing_designs.Button;
 import com.mirrorcompany.swing_designs.MyPasswordField;
 import com.mirrorcompany.swing_designs.MyTextField;
@@ -22,13 +22,13 @@ import net.miginfocom.swing.MigLayout;
  */
 public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     
-    private UserModel user;
+    private User user;
     private PanelPasswordForgotten pwdForgotten;
     private MigLayout Layout;   
     public UserDao userDao;
     
 
-    public UserModel getUser() {
+    public User getUser() {
         return user;
     }
 
@@ -50,13 +50,18 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         Register.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]10[]25[]push"));
         JLabel createAccount = new JLabel("Create Account");
         createAccount.setFont(new Font("sansserif", 1, 30));
-        createAccount.setForeground(new Color(11, 95, 86));
+        createAccount.setForeground(new Color(4, 79, 229));
         Register.add(createAccount);
         
         MyTextField txtusername = new MyTextField();
         txtusername.setPrefixIcon(new ImageIcon(getClass().getResource("/com/mirrorcompany/icons/user.png")));
         txtusername.setHint("UserName");
         Register.add(txtusername, "w 60%");
+        
+        MyTextField txtphone = new MyTextField();
+        txtphone.setPrefixIcon(new ImageIcon(getClass().getResource("/com/mirrorcompany/icons/user.png")));
+        txtphone.setHint("Phone Number");
+        Register.add(txtphone, "w 60%");
         
         MyTextField txtemail = new MyTextField();
         txtemail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/mirrorcompany/icons/mail.png")));
@@ -68,13 +73,8 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         txtpwd.setHint("Password");
         Register.add(txtpwd, "w 60%");
         
-        MyTextField txtrole = new MyTextField();
-        txtrole.setPrefixIcon(new ImageIcon(getClass().getResource("/com/mirrorcompany/icons/user.png")));
-        txtrole.setHint("Role");
-        Register.add(txtrole, "w 60%");
-        
         Button btn = new Button();
-        btn.setBackground(new Color(11, 95, 86));
+        btn.setBackground(new Color(24, 84, 203));
         btn.setForeground(new Color(250, 250, 250));
         btn.setFont(new Font("sansserif", 1, 14));
         btn.setText("SIGN UP");
@@ -84,11 +84,16 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 String username = txtusername.getText().trim();
+                String phone = txtusername.getText().trim();
                 String email = txtemail.getText().trim();
                 String pwd = String.valueOf(txtpwd.getPassword());
-                String role = txtrole.getText().trim();
                 
-                UserDao userDao = new UserDao();
+                user = new User();
+                
+                user.setUsername(username);
+                user.setEmail(email);
+                user.setPhone(phone);
+                user.setPassword(pwd);
 //                String verifyCode = userDao.getCode();
 //                
 //                user = new UserModel(username, pwd, email, role, verifyCode, "Not Verified");
@@ -107,7 +112,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         Login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]10[]25[]push"));
         JLabel login = new JLabel("Sign In");
         login.setFont(new Font("sansserif", 1, 30));
-        login.setForeground(new Color(11, 95, 86));
+        login.setForeground(new Color(4, 79, 229));
         Login.add(login);
         
         MyTextField txtemailL = new MyTextField();
@@ -128,7 +133,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         pwdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
         Login.add(pwdForget);
         Button btnLogin = new Button();
-        btnLogin.setBackground(new Color(11, 95, 86));
+        btnLogin.setBackground(new Color(24, 84, 203));
         btnLogin.setForeground(new Color(250, 250, 250));
         btnLogin.setFont(new Font("sansserif", 1, 14));
         btnLogin.setText("SIGN IN");
@@ -141,7 +146,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
                 String email = txtemailL.getText().trim();
                 String pwd = String.valueOf(txtpwdL.getPassword());
                 
-                user = new UserModel();
+                user = new User();
                 user.setEmail(email);
                 user.setPassword(pwd);
                 

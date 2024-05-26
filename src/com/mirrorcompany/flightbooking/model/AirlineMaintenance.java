@@ -5,7 +5,8 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-public class AirlineMaintenance implements Serializable{
+public class AirlineMaintenance implements Serializable {
+    private static final long serialVersionUID = 1L;
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Integer Id;

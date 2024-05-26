@@ -9,13 +9,15 @@ package com.mirrorcompany.model;
  *
  * @author ekire
  */
+import java.io.Serializable;
+import java.sql.Date;
 import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "expenses")
-public class Expense implements java.io.Serializable {
-
+public class Expense implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "expense_id")
@@ -28,7 +30,7 @@ public class Expense implements java.io.Serializable {
     private double amount;
 
     @Column(name = "expense_date", nullable = false)
-    private LocalDate expenseDate;
+    private Date expenseDate;
 
     @Column(name = "category", nullable = false)
     private String category;
@@ -45,7 +47,7 @@ public class Expense implements java.io.Serializable {
     public Expense() {
     }
 
-    public Expense(String title, double amount, LocalDate expenseDate, String category, String description, User user) {
+    public Expense(String title, double amount, Date expenseDate, String category, String description, User user) {
         this.title = title;
         this.amount = amount;
         this.expenseDate = expenseDate;
@@ -79,11 +81,11 @@ public class Expense implements java.io.Serializable {
         this.amount = amount;
     }
 
-    public LocalDate getExpenseDate() {
+    public Date getExpenseDate() {
         return expenseDate;
     }
 
-    public void setExpenseDate(LocalDate expenseDate) {
+    public void setExpenseDate(Date expenseDate) {
         this.expenseDate = expenseDate;
     }
 

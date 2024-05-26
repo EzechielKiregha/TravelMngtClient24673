@@ -43,13 +43,13 @@ public class LogOutPopUp extends javax.swing.JPanel {
     private void initComponents() {
 
         panelRound1 = new com.mirrorcompany.swing_designs.PanelRound();
-        jLabel1 = new javax.swing.JLabel();
+        logoutMessage = new javax.swing.JLabel();
         QuitTheApp = new com.mirrorcompany.swing_designs.ButtonOutLine();
         LogMeIn = new com.mirrorcompany.swing_designs.ButtonOutLine();
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("You Are Logged Out");
+        logoutMessage.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        logoutMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        logoutMessage.setText("You Are Logged Out");
 
         QuitTheApp.setBackground(new java.awt.Color(203, 23, 29));
         QuitTheApp.setText("QUIT");
@@ -67,21 +67,21 @@ public class LogOutPopUp extends javax.swing.JPanel {
         panelRound1Layout.setHorizontalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(91, 91, 91)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelRound1Layout.createSequentialGroup()
                 .addGap(52, 52, 52)
                 .addComponent(LogMeIn, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
                 .addComponent(QuitTheApp, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(logoutMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelRound1Layout.setVerticalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                 .addGap(23, 23, 23)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(logoutMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(LogMeIn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -110,7 +110,7 @@ public class LogOutPopUp extends javax.swing.JPanel {
     private void LogMeInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogMeInActionPerformed
         setVisible(false);
         Home dash = new Home();
-        OverviewFrame.toDash();
+        OverviewFrame.toDash(dash);
     }//GEN-LAST:event_LogMeInActionPerformed
     
     @Override
@@ -126,9 +126,9 @@ public class LogOutPopUp extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirrorcompany.swing_designs.ButtonOutLine LogMeIn;
-    private com.mirrorcompany.swing_designs.ButtonOutLine QuitTheApp;
-    private javax.swing.JLabel jLabel1;
+    public com.mirrorcompany.swing_designs.ButtonOutLine LogMeIn;
+    public com.mirrorcompany.swing_designs.ButtonOutLine QuitTheApp;
+    public javax.swing.JLabel logoutMessage;
     private com.mirrorcompany.swing_designs.PanelRound panelRound1;
     // End of variables declaration//GEN-END:variables
 }

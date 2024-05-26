@@ -5,6 +5,7 @@ package com.mirrorcompany.dao;
  * @author ekire
  */
 import com.mirrorcompany.model.User;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
 import javax.persistence.NoResultException;
@@ -14,10 +15,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 public class UserDao {
-
-    public UserDao() {
-    }
-
+    
     public boolean addUser(User user) {
         try {
             Session session = HibernateUtil.getSessionFactory().openSession();
@@ -31,10 +29,10 @@ public class UserDao {
         return false;
     }
     
-    public User findUserByEmail(User user){
+    public User findUserByEmail(String email){
         try {
             Session ss = HibernateUtil.getSessionFactory().openSession();
-            List<User> u = ss.createQuery("select u from User u where u.username = '"+user.getEmail()+"'").list();
+            List<User> u = ss.createQuery("select u from User u where u.username = '"+email+"'").list();
             ss.close();
             if(u != null)
             {
@@ -83,16 +81,12 @@ public class UserDao {
         return null;
     }
     
-    private SessionFactory sessionFactory;
-
-    public UserDao(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    
 
     public boolean registerUser(User user) {
         Transaction transaction = null;
         try {
-            Session session = sessionFactory.openSession();
+            Session session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
             session.save(user);
             transaction.commit();
@@ -100,41 +94,32 @@ public class UserDao {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
-            return false;
-        }
-    }
-
-    public User findUserByEmail(String email) {
-        try {
-            Session session = sessionFactory.openSession();
-            Query query = session.createQuery("FROM User WHERE email = :email");
-            query.setParameter("email", email);
-            List<User> l = query.list();
-            return l.get(0);
-        } catch (NoResultException e) {
-            return null;
-        }
+            
+        }return false;
     }
 
     public boolean isEmailDuplicated(String email) {
-        return findUserByEmail(email) != null;
+        User user = findUserByEmail(email);
+        return user != null;
     }
 
     public boolean isUsernameDuplicated(String username) {
         try {
-            Session session = sessionFactory.openSession();
+            Session session = HibernateUtil.getSessionFactory().openSession();
             Query query = session.createQuery("FROM User WHERE username = :username");
             query.setParameter("username", username);
+            
             return query.list() != null;
         } catch (NoResultException e) {
-            return false;
+           e.printStackTrace();
         }
+        return false;
     }
 
     public boolean verifyUser(Long userId, String code) {
         Transaction transaction = null;
         try {
-            Session session = sessionFactory.openSession();
+            Session session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
             Query query = session.createQuery("FROM User WHERE userId = :userId AND verificationCode = :code");
             query.setParameter("userId", userId);
@@ -152,39 +137,40 @@ public class UserDao {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
-            return false;
-        }
+            
+        }return false;
     }
 
     public boolean loginUser(String email, String password) {
         try {
-            Session session = sessionFactory.openSession();
-            Query query = session.createQuery("FROM User WHERE email = :email AND password = :password");
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            Query query = session.createQuery("FROM User u WHERE u.email = :email AND u.password = :password");
             query.setParameter("email", email);
             query.setParameter("password", password);
             return query.list() != null;
         } catch (NoResultException e) {
-            return false;
-        }
+            e.printStackTrace();
+        }return false;
     }
 
     public String generateVerificationCode() {
-        String code;
+        DecimalFormat df = new DecimalFormat("000000");
         Random rand = new Random();
-        do {
-            code = String.format("%06d", rand.nextInt(1000000));
-        } while (isVerificationCodeDuplicated(code));
+        String code = df.format(rand.nextInt(1000000));
+        while (isVerificationCodeDuplicated(code)){
+            code = df.format(rand.nextInt(1000000));
+        }
         return code;
     }
 
     public boolean isVerificationCodeDuplicated(String code) {
         try {
-            Session session = sessionFactory.openSession();
+            Session session = HibernateUtil.getSessionFactory().openSession();
             Query query = session.createQuery("FROM User WHERE verificationCode = :code");
             query.setParameter("code", code);
             return query.list() != null;
         } catch (NoResultException e) {
-            return false;
-        }
+            e.printStackTrace();
+        }return false;
     }
 }

@@ -6,6 +6,7 @@ import com.mirrorcompany.view.swing.Button;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -17,7 +18,8 @@ public class Header extends javax.swing.JPanel {
 
     public Header() {
         initComponents();
-        setBackground(new Color(250, 250, 250));
+        setBackground(new Color(6, 7, 29));
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -29,23 +31,39 @@ public class Header extends javax.swing.JPanel {
         setBackground(new java.awt.Color(6, 7, 29));
 
         cmdMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirrorcompany/view/icon/menu.png"))); // NOI18N
+        cmdMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cmdMenuMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cmdMenuMouseExited(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(184, 184, 184)
-                .addComponent(cmdMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(195, Short.MAX_VALUE))
+                .addGap(251, 251, 251)
+                .addComponent(cmdMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(750, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(cmdMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 27, Short.MAX_VALUE)
+                .addComponent(cmdMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 24, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cmdMenuMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdMenuMouseEntered
+        cmdMenu.setBackground(new Color(54, 81, 207));
+    }//GEN-LAST:event_cmdMenuMouseEntered
+
+    private void cmdMenuMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdMenuMouseExited
+        cmdMenu.setBackground(new Color(250, 250, 250));
+    }//GEN-LAST:event_cmdMenuMouseExited
 
     @Override
     protected void paintComponent(Graphics grphcs) {
